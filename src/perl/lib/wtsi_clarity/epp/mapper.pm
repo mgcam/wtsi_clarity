@@ -10,10 +10,11 @@ with 'MooseX::Getopt';
 our $VERSION = '0.0';
 
 Readonly::Hash my %ACTION2MODULE => (
-    'volume_check' => 'sm::volume_check',
-    'create_label' => 'sm::create_label',
-    'stamp'        => 'stamp',
-    'sample_received' => 'sm::sample_received',
+    'volume_check'     => 'sm::volume_check',
+    'create_label'     => 'sm::create_label',
+    'sample_received'    => 'sm::sample_received',
+    'bed_verification' => 'sm::bed_verification',
+    'stamp'            => 'stamp',
 );
 
 has 'action'  => (

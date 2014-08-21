@@ -102,11 +102,32 @@ CREATE TABLE `study_users` (
 DROP TABLE IF EXISTS `iseq_flowcell`;
 CREATE TABLE `iseq_flowcell` (
   `id_iseq_flowcell_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
+  `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp` int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
+  `cost_code` varchar(20) NOT NULL COMMENT 'Valid WTSI cost code',
+  `is_r_and_d` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'A boolean flag derived from cost code, flags RandD',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
-  `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
+  `priority` smallint(2) unsigned DEFAULT 1 COMMENT 'Priority',
+  `manual_qc` tinyint(1) DEFAULT NULL COMMENT 'Manual QC decision, NULL for unknown',
+  `external_release`  tinyint(1) DEFAULT NULL COMMENT 'Defaults to manual qc value; can be changed by the user later',
   `flowcell_barcode` varchar(15) DEFAULT NULL COMMENT 'Manufacturer flowcell barcode or other identifier',
+  `flowcell_id` varchar(20) NOT NULL COMMENT 'LIMs-specific flowcell id, batch_id for Sequencescape',
+  `position` smallint(2) unsigned NOT NULL COMMENT 'Flowcell lane number',
+  `lane_type` varchar(10) NOT NULL COMMENT 'Lane type: library, pool, control',
+  `num_target_components` smallint(4) unsigned NOT NULL COMMENT 'Expected number of targets, one for a non-pool and number of target tags for a pool',
+  `tag_index` smallint(4) unsigned DEFAULT NULL COMMENT 'Tag index, NULL if lane is not a pool',
+  `tag_sequence` varchar(30) DEFAULT NULL COMMENT 'Tag sequence, NULL if lane is not a pool',
+  `tag_set_id_lims` varchar(20) DEFAULT NULL COMMENT 'LIMs-specific identifier of the tag set',
+  `tag_set_name` varchar(50) DEFAULT NULL COMMENT 'WTSI-wide tag set name',
+  `tag_sequence_spike` varchar(30) DEFAULT NULL COMMENT 'Tag sequence of the spike',
+  `pipeline_id_lims` varchar(50) NOT NULL COMMENT 'LIMs-specific pipeline identifier that unambiguously defines library type',
+  `provenance_lims` varchar(20) NOT NULL COMMENT 'Most specific, LIMs identifier associated with this lane or plex or spike, to be used instead of asset_id',
+  `bait_name` varchar(50) DEFAULT NULL COMMENT 'WTSI-wide name that uniquely identifies a bait set',
+  `requested_insert_size_from` int(5) unsigned DEFAULT NULL COMMENT 'Requested insert size min value',
+  `requested_insert_size_to` int(5) unsigned DEFAULT NULL COMMENT 'Requested insert size max value',
+  `forward_read_length` smallint(4) unsigned DEFAULT NULL COMMENT 'Requested forward read length, bp',
+  `reverse_read_length` smallint(4) unsigned DEFAULT NULL COMMENT 'Requested reverse read length, bp',
   PRIMARY KEY (`id_iseq_flowcell_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -115,6 +136,7 @@ CREATE TABLE `flgen_plate` (
   `id_flgen_plate_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp`  int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
+  `cost_code` varchar(20) NOT NULL COMMENT 'Valid WTSI cost code',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
   `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `plate_barcode` int(13) unsigned NOT NULL COMMENT 'Manufacturer (Fluidigm) chip barcode',
@@ -125,7 +147,6 @@ CREATE TABLE `flgen_plate` (
   `plate_size_occupied` int(4) DEFAULT NULL COMMENT 'Number of occupied wells on a plate',
   `well_label` varchar(10) NOT NULL COMMENT 'Manufactuer well identifierwithin a plate, S001-S192',
   `well_uuid_lims` varchar(36) DEFAULT NULL COMMENT 'LIMs-specific well uuid',
-  `cost_code` varchar(10) NOT NULL COMMENT 'Valid WTSI cost code',
   `qc_state` tinyint(1) DEFAULT NULL COMMENT 'QC state; 1 (pass), 0 (fail), NULL (not known)',
   PRIMARY KEY (`id_flgen_plate_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

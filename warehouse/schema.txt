@@ -4,6 +4,9 @@ ALTER TABLE `iseq_flowcell`     DROP FOREIGN KEY `iseq_flowcell_sample_fk`, \
 ALTER TABLE `flgen_plate`       DROP FOREIGN KEY `flgen_plate_sample_fk`, \
                                 DROP FOREIGN KEY `flgen_plate_study_fk`;
 ALTER TABLE `iseq_run_status`   DROP FOREIGN KEY `iseq_run_status_rsd_fk`;
+ALTER TABLE `iseq_run_lane_metrics` DROP FOREIGN KEY `iseq_rl_metrics_flc_fk`;
+ALTER TABLE `iseq_product_metrics`  DROP FOREIGN KEY `iseq_pr_metrics_flc_fk`, \
+                                    DROP FOREIGN KEY `iseq_pr_metrics_lm_fk`;
 
 DROP TABLE IF EXISTS `study`;
 CREATE TABLE `study` (
@@ -99,6 +102,7 @@ CREATE TABLE `iseq_flowcell` (
   `id_iseq_flowcell_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp` int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
+  `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
   `flowcell_barcode` varchar(15) DEFAULT NULL COMMENT 'Manufacturer flowcell barcode or other identifier',
   PRIMARY KEY (`id_iseq_flowcell_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -108,8 +112,24 @@ CREATE TABLE `flgen_plate` (
   `id_flgen_plate_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp`  int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
+  `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
   `plate_barcode` int(13) unsigned NOT NULL COMMENT 'Manufacturer (Fluidigm) chip barcode',
   PRIMARY KEY (`id_flgen_plate_tmp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `iseq_run_lane_metrics`;
+CREATE TABLE `iseq_run_lane_metrics` (
+  `id_iseq_lane_metrics_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
+  `id_iseq_flowcell_tmp` int(11) unsigned NOT NULL COMMENT 'Flowcell id, see "iseq_flowcell.id_iseq_flowcell_tmp"',
+  PRIMARY KEY (`id_iseq_lane_metrics_tmp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `iseq_product_metrics`;
+CREATE TABLE `iseq_product_metrics` (
+  `id_iseq_pr_metrics_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
+  `id_iseq_lane_metrics_tmp` int(11) unsigned NOT NULL COMMENT 'Lane metrics id, see "iseq_run_lane_metrics.id_iseq_lane_metrics_tmp"',
+  `id_iseq_flowcell_tmp` int(11) unsigned NOT NULL COMMENT 'Flowcell id, see "iseq_flowcell.id_iseq_flowcell_tmp"',
+  PRIMARY KEY (`id_iseq_pr_metrics_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `iseq_run_status_dict`;
@@ -158,4 +178,17 @@ ALTER TABLE `flgen_plate` \
 ALTER TABLE `iseq_run_status` \
   ADD CONSTRAINT `iseq_run_status_rsd_fk` \
   FOREIGN KEY (`id_run_status_dict`) REFERENCES `iseq_run_status_dict` (`id_run_status_dict`) \
+  ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `iseq_run_lane_metrics` \
+  ADD CONSTRAINT `iseq_rl_metrics_flc_fk` \
+  FOREIGN KEY (`id_iseq_flowcell_tmp`) REFERENCES `iseq_flowcell` (`id_iseq_flowcell_tmp`) \
+  ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `iseq_product_metrics` \
+  ADD CONSTRAINT `iseq_pr_metrics_flc_fk` \
+  FOREIGN KEY (`id_iseq_flowcell_tmp`) REFERENCES `iseq_flowcell` (`id_iseq_flowcell_tmp`) \
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `iseq_pr_metrics_lm_fk` \
+  FOREIGN KEY (`id_iseq_lane_metrics_tmp`) REFERENCES `iseq_run_lane_metrics` (`id_iseq_lane_metrics_tmp`) \
   ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -1,3 +1,4 @@
+/*
 ALTER TABLE `study_users`       DROP FOREIGN KEY `study_users_study_fk`;
 ALTER TABLE `iseq_flowcell`     DROP FOREIGN KEY `iseq_flowcell_sample_fk`, \
                                 DROP FOREIGN KEY `iseq_flowcell_study_fk`;
@@ -7,13 +8,14 @@ ALTER TABLE `iseq_run_status`   DROP FOREIGN KEY `iseq_run_status_rsd_fk`;
 ALTER TABLE `iseq_run_lane_metrics` DROP FOREIGN KEY `iseq_rl_metrics_flc_fk`;
 ALTER TABLE `iseq_product_metrics`  DROP FOREIGN KEY `iseq_pr_metrics_flc_fk`, \
                                     DROP FOREIGN KEY `iseq_pr_metrics_lm_fk`;
+*/
 
 DROP TABLE IF EXISTS `study`;
 CREATE TABLE `study` (
   `id_study_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. GCLP-CLARITY, SEQSCAPE',
-  `uuid_study_lims` varchar(255) DEFAULT NULL COMMENT 'LIMS-specific study uuid',
-  `id_study_lims` varchar(255) NOT NULL COMMENT 'LIMS-specific study identifier',
+  `uuid_study_lims` varchar(36) DEFAULT NULL COMMENT 'LIMS-specific study uuid',
+  `id_study_lims` varchar(20) NOT NULL COMMENT 'LIMS-specific study identifier',
   `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `name` varchar(255) DEFAULT NULL,
   `reference_genome` varchar(255) DEFAULT NULL,
@@ -53,8 +55,8 @@ DROP TABLE IF EXISTS `sample`;
 CREATE TABLE `sample` (
   `id_sample_tmp` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal to this database id, value can change',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
-  `uuid_sample_lims` varchar(255) DEFAULT NULL COMMENT 'LIMS-specific sample uuid',
-  `id_sample_lims` varchar(255) NOT NULL COMMENT 'LIMS-specific sample identifier',
+  `uuid_sample_lims` varchar(36) DEFAULT NULL COMMENT 'LIMS-specific sample uuid',
+  `id_sample_lims` varchar(20) NOT NULL COMMENT 'LIMS-specific sample identifier',
   `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `name` varchar(255) DEFAULT NULL,
   `reference_genome` varchar(255) DEFAULT NULL,
@@ -103,6 +105,7 @@ CREATE TABLE `iseq_flowcell` (
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp` int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
+  `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `flowcell_barcode` varchar(15) DEFAULT NULL COMMENT 'Manufacturer flowcell barcode or other identifier',
   PRIMARY KEY (`id_iseq_flowcell_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -113,7 +116,17 @@ CREATE TABLE `flgen_plate` (
   `id_sample_tmp` int(11) unsigned NOT NULL COMMENT 'Sample id, see "sample.id_sample_tmp"',
   `id_study_tmp`  int(11) unsigned NOT NULL COMMENT 'Study id, see "study.id_study_tmp"',
   `id_lims` varchar(10) NOT NULL COMMENT 'LIM system identifier, e.g. CLARITY-GCLP, SEQSCAPE',
+  `last_updated` datetime NOT NULL COMMENT 'Timestamp of last update',
   `plate_barcode` int(13) unsigned NOT NULL COMMENT 'Manufacturer (Fluidigm) chip barcode',
+  `plate_barcode_lims` int(13) unsigned NOT NULL COMMENT 'LIMs-specific plate barcode',
+  `plate_uuid_lims` varchar(36) DEFAULT NULL COMMENT 'LIMs-specific plate uuid',
+  `plate_id_lims` varchar(20) NOT NULL COMMENT 'LIMs-specific plate id',
+  `plate_size` int(4) DEFAULT NULL COMMENT 'Total number of wells on a plate',
+  `plate_size_occupied` int(4) DEFAULT NULL COMMENT 'Number of occupied wells on a plate',
+  `well_label` varchar(10) NOT NULL COMMENT 'Manufactuer well identifierwithin a plate, S001-S192',
+  `well_uuid_lims` varchar(36) DEFAULT NULL COMMENT 'LIMs-specific well uuid',
+  `cost_code` varchar(10) NOT NULL COMMENT 'Valid WTSI cost code',
+  `qc_state` tinyint(1) DEFAULT NULL COMMENT 'QC state; 1 (pass), 0 (fail), NULL (not known)',
   PRIMARY KEY (`id_flgen_plate_tmp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -153,7 +166,7 @@ CREATE TABLE `iseq_run_status` (
   PRIMARY KEY (`id_run_status`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-
+/*
 ALTER TABLE `study_users` \
   ADD CONSTRAINT study_users_study_fk \
   FOREIGN KEY (`id_study_tmp`) REFERENCES `study` (`id_study_tmp`) \
@@ -192,3 +205,4 @@ ALTER TABLE `iseq_product_metrics` \
   ADD CONSTRAINT `iseq_pr_metrics_lm_fk` \
   FOREIGN KEY (`id_iseq_lane_metrics_tmp`) REFERENCES `iseq_run_lane_metrics` (`id_iseq_lane_metrics_tmp`) \
   ON DELETE NO ACTION ON UPDATE NO ACTION;
+*/
